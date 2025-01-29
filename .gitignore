@@ -6,6 +6,8 @@ __pycache__/
 *.txt
 *.csv
 
+*mlruns/
+
 # C extensions
 *.so
 
