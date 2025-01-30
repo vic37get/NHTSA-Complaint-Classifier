@@ -58,7 +58,6 @@ class ClassifyComplaints:
             logging_strategy="epoch",
             eval_strategy="epoch",
             save_strategy="epoch",
-            save_total_limit=1,
             greater_is_better=False,
             learning_rate=self.learning_rate,
             per_device_train_batch_size=self.batch_size,
@@ -69,6 +68,7 @@ class ClassifyComplaints:
             load_best_model_at_end=True,
             metric_for_best_model="eval_loss"
         )
+
         
         trainer = Trainer(
             model=model,
@@ -84,15 +84,19 @@ class ClassifyComplaints:
         trainer.train()
         
         print("Realizando o teste do modelo..")
-        metrics = trainer.evaluate(eval_dataset=test_dataset)
+        # Dataset de validação
+        metrics_eval = trainer.evaluate(eval_dataset=eval_dataset)
+        # Dataset de teste
+        metrics_test = trainer.evaluate(eval_dataset=test_dataset)
         
         print("Salvando os arquivos...")
-        
-        dir_metrics = os.path.join(self.dir_save_metrics, f"metrics_test_{name_classifier}.json")
+        dir_metrics_eval = os.path.join(self.dir_save_metrics, f"metrics_eval_{name_classifier}.json")
+        dir_metrics_test = os.path.join(self.dir_save_metrics, f"metrics_test_{name_classifier}.json")
         dir_model = os.path.join(self.dir_save_model, name_classifier)
         
-        json.dump(metrics, open(dir_metrics, "w"), indent=4, ensure_ascii=False)
-        print(f"As métricas foram salvas em: {dir_metrics}")
+        json.dump(metrics_eval, open(dir_metrics_eval, "w"), indent=4, ensure_ascii=False)
+        json.dump(metrics_test, open(dir_metrics_test, "w"), indent=4, ensure_ascii=False)
+        print(f"As métricas foram salvas em: {dir_metrics_eval} e {dir_metrics_test}")
         
         trainer.save_model(dir_model)
         print(f"O modelo foi salvo em: {dir_model}")
@@ -102,7 +106,7 @@ class ClassifyComplaints:
         """
             Realiza as transformações necessárias no dataset, deixando-o pronto para o treinamento e avaliação.
         """
-        data = load_dataset("csv", data_files={"train": self.path_train_dataset, "eval": self.path_eval_dataset, "test": self.path_eval_dataset})
+        data = load_dataset("csv", data_files={"train": self.path_train_dataset, "eval": self.path_eval_dataset, "test": self.path_test_dataset})
         
         labels = list(set(data['train']['label']))
         self.id2label = {idx:label for idx, label in enumerate(labels)}
@@ -150,7 +154,7 @@ class ClassifyComplaints:
 if __name__ == '__main__':
     
     params = {
-        "model_name": "google-bert/bert-base-multilingual-cased", 
+        "model_name": "google-bert/bert-base-uncased", 
         "path_train_dataset": "../../data/csv/train.csv",
         "path_test_dataset": "../../data/csv/test.csv",
         "path_eval_dataset": "../../data/csv/eval.csv",
@@ -160,7 +164,6 @@ if __name__ == '__main__':
         "learning_rate": 1e-5,
         "epochs": 30,
         "patience": 3
-        
         }
     
     classifier = ClassifyComplaints(**params)
