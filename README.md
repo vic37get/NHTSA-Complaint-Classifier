@@ -1,10 +1,28 @@
-# Relatório do Projeto 
+# Classificação de Reclamações de veículos do NHTSA
 
-## 1. Aquisição e Pré-processamento de Dados
+ Esse projeto consiste em uma pipeline completo de processamento e modelagem de dados usando reclamações de veículos do NHTSA do período entre 2014 e 2024. O foco principal do projeto é a predição do tipo de componente do veículo relatado nas reclamações, utilizando técnicas de Processamento de Linguagem Natural (NLP) e Machine Learning.
+
+### Metodologia
+
+A abordagem adotada está representada no fluxograma da imagem abaixo e segue as seguintes etapas:
+
+![alt text](/data/img/fluxogram.png)
+
+**Aquisição e pré-processamento dos dados:** Foram coletados os dados de reclamações de veículos do NHTSA, realizou-se limpeza textual, correções textuais e tokenização.
+
+**Engenharia de Features:** Os textos foram transformados em representações numéricas utilizando técnicas de embeddings.
+
+**Treinamento do Modelo:** Implementamos e avaliamos modelos de classificação usando o BERT.
+
+**Avaliação:** Testamos diferentes hiperparâmetros para otimizar o desempenho.
+
+**Deploy da API**: Criamos uma Api para tornar possível consumir o modelo e criamos um container Docker para garantir a portabilidade do modelo, permitindo integração com aplicações externas.
+
+## 1. Aquisição dos Dados
 
 ### 1.1 Objetivo
 
-O objetivo desta etapa foi coletar os dados de reclamações de veículos da [NHTSA](https://www.nhtsa.gov/nhtsa-datasets-and-apis#complaints) (National Highway Traffic Safety Administration) entre os anos de 2014 e 2024. Esses dados form essenciais para treinar um modelo de classificação que prediz o tipo de problema relatado nas reclamações. A escolha desse problema como tarefa de classificação se deve ao fato de os dados já estarem previamente rotulados, além da ampla variedade de categorias de problemas disponíveis para análise.
+O objetivo desta etapa foi coletar os dados de reclamações de veículos da [NHTSA](https://www.nhtsa.gov/nhtsa-datasets-and-apis#complaints) (National Highway Traffic Safety Administration) entre os anos de 2014 e 2024. Esses dados form essenciais para treinar um modelo de classificação que prediz o tipo de componente veicular relatado nas reclamações. A escolha desse problema como tarefa de classificação se deve ao fato de os dados já estarem previamente rotulados, além da ampla variedade de categorias de componentes disponíveis para análise.
 
 ### 1.2 Fontes de Dados
 
@@ -31,7 +49,7 @@ Os dados extraídos foram armazenados em arquivos JSON organizados dentro do dir
 - `model_years.json`: Lista de anos de modelo.
 - `make_model_year.json`: Lista de marcas vinculadas a cada ano de modelo.
 - `model_make_year.json`: Lista de modelos vinculados a cada marca e ano.
-- `complaints.json`: Lista de reclamações contendo detalhes como o problema relatado, o veículo associado e outras informações relevantes.
+- `complaints.json`: Lista de reclamações contendo detalhes como o tipo de problema relatado, o veículo associado e outras informações relevantes.
 
 ### 1.5 Tratamento de Erros e Logging
 
@@ -59,7 +77,7 @@ O objetivo desta etapa foi preparar os dados brutos adquiridos para que possam s
 1. **Filtragem de Dados**: Foram selecionadas apenas as colunas relevantes (`odiNumber`, `dateComplaintFiled`, `components`, `summary`).
 2. **Conversão de Datas**: A coluna `dateComplaintFiled` foi convertida para o formato datetime para permitir análises temporais.
 3. **Remoção de Dados Duplicados e Nulos**: Reclamações sem descrição (`summary`) ou sem categoria (`components`) foram descartadas.
-4. **Classificação das Reclamações**: As reclamações foram agrupadas em cinco categorias principais de problemas (`ELECTRICAL SYSTEM`, `AIR BAGS`, `STRUCTURE`, `SERVICE BRAKES` e `OTHER`). Foram escolhidas as primeiras quatro categorias por serem as mais abrangentes no conjunto de dados. Todas as outras categorias diferentes das mesmas foram colocadas na categoria *OTHER*. 
+4. **Classificação das Reclamações**: As reclamações foram agrupadas em cinco categorias principais de componentes (`ELECTRICAL SYSTEM`, `AIR BAGS`, `STRUCTURE`, `SERVICE BRAKES` e `OTHER`). Foram escolhidas as primeiras quatro categorias por serem as mais abrangentes no conjunto de dados. Todas as outras categorias diferentes das mesmas foram colocadas na categoria *OTHER*. 
 5. **Balanceamento de Classes**: Como algumas categorias tinham muito mais exemplos do que outras, mais especificamente a categorias *OTHERS*, foi aplicada uma técnica de balanceamento para garantir uma distribuição mais uniforme das classes no conjunto de treino. Essa técnica consiste em reduzir a quantidade de amostras das classes majoritarias para o mesmo número de amostras da classe minoritária do conjunto de dados.
 6. **Limpeza de Texto**: Foram removidos caracteres especiais, múltiplos espaços, e o texto foi normalizado para caixa baixa, já que muitas reclamações não seguiam o padrão, muitas estavam em caixa alta e outras em caixa baixa. Tendo em vista o melhor aprendizado e generalização do modelo, foi optado por converter todas as reclamações para caixa baixa.
 
@@ -95,6 +113,8 @@ A etapa de processamento garantiu que os dados estivessem limpos, organizados e 
 
 ## 3. Análise Descritiva da Base de Dados
 
+Realizamos uma análise descritiva dos conjunto de dados de reclamações selecionado anteriormente. Essa etapa é muito importante para verificar a distribuição das variáveis após o pré-processamento, avaliar o balanceamento das classes e identificar possíveis padrões que possam influenciar o desempenho do modelo, além de apoiar a escolha do modelo que será utilizado. 
+
 A imagem a seguir, trata de uma análise descritiva dos textos das reclamações.
 
 ![alt text](/data/img/eda_complaints.png)
@@ -126,11 +146,11 @@ Para este projeto, optamos por utilizar o **BERT (Bidirectional Encoder Represen
 
 O **BERT** foi escolhido por ser um dos modelos de estado da arte para tarefas de NLP, especialmente classificação de texto. Sua arquitetura baseada em **transformers** permite capturar relações contextuais entre palavras de maneira bidirecional, o que é essencial para a compreensão de textos de reclamações veiculares, que frequentemente contêm ambiguidades e expressões informais.  
 
-A tarefa de modelagem escolhida foi a **classificação multiclasse**, onde cada reclamação é categorizada em um dos tipos de problema previamente rotulados no dataset da **NHTSA**.  
+A tarefa de modelagem escolhida foi a **classificação multiclasse**, onde cada reclamação é categorizada em um dos tipos de componentes previamente rotulados no dataset da **NHTSA**.  
 
 ---  
 
-### 4.2 Pré-processamento e Engenharia de Features  
+### 4.2 Engenharia de Features  
 
 A engenharia de features foi realizada com foco na tokenização eficiente dos textos das reclamações. Utilizamos o **tokenizador do BERT**, que converte os textos em embeddings compatíveis com a arquitetura do modelo. As etapas aplicadas foram:  
 
@@ -243,7 +263,7 @@ A API foi projetada para expor quatro endpoints principais:
 1. **GET /**: Um endpoint de verificação, retornando uma mensagem simples de boas-vindas.
 2. **GET /status**: Endpoint para verificar o status da API, útil para monitoramento.
 3. **POST /load**: Endpoint responsável pelo carregamento do modelo treinado e do tokenizador a partir de um modelo pré-existente (como o BERT). Ele permite que o modelo seja carregado na memória e esteja pronto para realizar previsões.
-4. **POST /classify_complaints**: Endpoint principal da API, responsável por receber reclamações no formato JSON, limpar o texto e classificar o tipo de problema utilizando o modelo treinado.
+4. **POST /classify_complaints**: Endpoint principal da API, responsável por receber reclamações no formato JSON, limpar o texto e classificar o tipo de componente utilizando o modelo treinado.
 
 ### 6.3 Funcionamento
 
