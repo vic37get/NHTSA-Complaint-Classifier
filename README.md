@@ -86,7 +86,7 @@ O objetivo desta etapa foi preparar os dados brutos adquiridos para que possam s
 Os dados foram divididos da seguinte forma:
 
 - **Treinamento e Validação**: Reclamações entre 2014 e 2024 foram usadas para treino e validação do modelo.
-- **Teste**: Um conjunto de dados adicional, contendo reclamações anteriores a 2014, foi separado para avaliar o desempenho do modelo em um período diferente, atendendo ao requisito opcional de detecção de data drift. Não foi feita nenhuma manipulação nesses dados, do tipo balanceamento, como foi feito na base de dados de treinamento.
+- **Teste**: Um conjunto de dados adicional, contendo reclamações anteriores a 2014, foi separado para avaliar o desempenho do modelo em um período diferente, atendendo ao requisito opcional de detecção de data drift. Não foi feita nenhuma manipulação nesses dados, do tipo balanceamento, como foi feito na conjunto de dados de treinamento.
 
 Os dados foram salvos em arquivos *CSV* organizados no diretório `../../data/csv`:
 
@@ -111,7 +111,7 @@ A etapa de processamento garantiu que os dados estivessem limpos, organizados e 
 
 ---
 
-## 3. Análise Descritiva da Base de Dados
+## 3. Análise Descritiva do Conjunto de Dados
 
 Realizamos uma análise descritiva dos conjunto de dados de reclamações selecionado anteriormente. Essa etapa é muito importante para verificar a distribuição das variáveis após o pré-processamento, avaliar o balanceamento das classes e identificar possíveis padrões que possam influenciar o desempenho do modelo, além de apoiar a escolha do modelo que será utilizado. 
 
@@ -120,7 +120,7 @@ A imagem a seguir, trata de uma análise descritiva dos textos das reclamações
 ![alt text](/data/img/eda_complaints.png)
 
 ### 3.1. Distribuição do Número de Palavras Únicas
-A maioria dos textos de reclamação contém um número relativamente pequeno de palavras únicas, com poucos textos apresentando uma grande diversidade de vocabulário. Esse padrão sugere que a base de dados é composta por textos com um vocabulário mais simples, o que pode ser vantajoso para modelos como o BERT, que se beneficiam de contextos linguísticos mais diretos e frequentes. Contudo, a falta de diversidade pode limitar a capacidade de generalização do modelo para textos com vocabulários mais complexos ou técnicos, o que pode ser um desafio em domínios mais especializados.
+A maioria dos textos de reclamação contém um número relativamente pequeno de palavras únicas, com poucos textos apresentando uma grande diversidade de vocabulário. Esse padrão sugere que o conjunto de dados é composta por textos com um vocabulário mais simples, o que pode ser vantajoso para modelos como o BERT, que se beneficiam de contextos linguísticos mais diretos e frequentes. Contudo, a falta de diversidade pode limitar a capacidade de generalização do modelo para textos com vocabulários mais complexos ou técnicos, o que pode ser um desafio em domínios mais especializados.
 
 ### 3.2. Distribuição do Comprimento Médio das Palavras
 A análise do comprimento médio das palavras indica que a maioria dos textos apresenta palavras com 4 a 5 caracteres. Esse padrão é adequado para o BERT, pois o modelo lida bem com palavras de tamanho médio, conseguindo capturar seus significados contextuais de forma eficaz. Entretanto, a presença de termos técnicos ou siglas, que costumam ser mais curtos ou mais longos, pode prejudicar a capacidade do BERT de interpretar esses elementos com precisão, especialmente quando não são representados corretamente durante a tokenização.
@@ -142,11 +142,15 @@ Como ilustrado no gráfico, as classes mais representativas no dataset são: **E
 
 ### 4.1 Escolha do Modelo  
 
-Para este projeto, optamos por utilizar o **BERT (Bidirectional Encoder Representations from Transformers)**, especificamente a versão [`bert-base-uncased`](https://huggingface.co/google-bert/bert-base-uncased) da Google.  
+Para este projeto, optamos por utilizar o **BERT (Bidirectional Encoder Representations from Transformers)**, especificamente a versão [`bert-base-uncased`](https://huggingface.co/google-bert/bert-base-uncased) desenvolvida pela Google, por ser uma versão pré-treinada com volumosos conjuntos de dados na língua inglesa.
 
-O **BERT** foi escolhido por ser um dos modelos de estado da arte para tarefas de NLP, especialmente classificação de texto. Sua arquitetura baseada em **transformers** permite capturar relações contextuais entre palavras de maneira bidirecional, o que é essencial para a compreensão de textos de reclamações veiculares, que frequentemente contêm ambiguidades e expressões informais.  
+O **BERT** foi escolhido por ser um dos modelos mais avançados e eficazes para tarefas de Processamento de Linguagem Natural (NLP), especialmente para a **classificação de texto**. Sua arquitetura baseada em **transformers** permite capturar relações contextuais entre palavras de maneira bidirecional, o que é fundamental para a compreensão de textos de reclamações veiculares, que muitas vezes contêm ambiguidades, expressões informais e um vocabulário específico do domínio.
 
-A tarefa de modelagem escolhida foi a **classificação multiclasse**, onde cada reclamação é categorizada em um dos tipos de componentes previamente rotulados no dataset da **NHTSA**.  
+A arquitetura do BERT é composta por várias camadas de transformadores, que são redes neurais especializadas no processamento de sequências. O modelo é pré-treinado em grandes volumes de texto e, em seguida, ajustado para tarefas específicas, como a classificação de texto. 
+
+O treinamento do BERT envolve duas tarefas principais: **Masked Language Modeling (MLM)** e **Next Sentence Prediction (NSP)**, que permitem ao modelo aprender representações profundas e contextualizadas das palavras, resultando em um entendimento mais preciso do significado.
+
+A tarefa de modelagem escolhida foi a **classificação multiclasse**, em que cada reclamação é categorizada em um dos tipos de componentes previamente rotulados no dataset da **NHTSA**. A escolha do BERT visa não só melhorar a precisão na identificação do tipo de problema, mas também garantir que o modelo seja capaz de lidar com as nuances linguísticas presentes nas reclamações.
 
 ---  
 
@@ -184,7 +188,7 @@ O modelo foi treinado com os seguintes hiperparâmetros:
 
 ### 4.4 Resultados do Treinamento  
 
-#### 4.4.1 Resultados na Base de Validação  
+#### 4.4.1 Resultados no Conjunto de Dados de Validação  
 
 | Métrica    | Valor  |
 |------------|--------|
@@ -193,7 +197,7 @@ O modelo foi treinado com os seguintes hiperparâmetros:
 | **Precisão**  | 85.96% |
 | **Recall**    | 86.40% |
 
-#### 4.4.2 Resultados na Base de Teste  
+#### 4.4.2 Resultados no Conjunto de Dados de Teste  
 
 | Métrica    | Valor  |
 |------------|--------|
