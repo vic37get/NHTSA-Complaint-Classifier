@@ -107,7 +107,7 @@ A distribuição das classes de cada conjunto de dados pode ser vista na tabela 
 
 ### 2.4 Conclusão
 
-A etapa de processamento garantiu que os dados estivessem limpos, organizados e balanceados, prontos para serem utilizados no treinamento do modelo de machine learning.
+A etapa de processamento assegurou que os dados estivessem limpos, organizados e balanceados, prontos para o treinamento do modelo de machine learning. O dataset NHTSA Complaints Dataset foi cuidadosamente construído e está disponível na plataforma Hugging Face [`vic35get/nhtsa_complaints_dataset`](https://huggingface.co/datasets/vic35get/nhtsa_complaints_dataset). Ao disponibilizar os dados nessa plataforma, é facilitada a reprodução do treinamento e da avaliação do modelo, além de tornar o dataset acessível à comunidade para uso em projetos e pesquisas futuras.
 
 ---
 
