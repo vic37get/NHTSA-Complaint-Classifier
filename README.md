@@ -44,7 +44,7 @@ A extração foi realizada em etapas sequenciais:
 
 ### 1.4 Estrutura dos Dados
 
-Os dados extraídos foram armazenados em arquivos JSON organizados dentro do diretório `../../data/json`. Os principais arquivos gerados foram:
+Os dados extraídos foram armazenados em arquivos JSON organizados dentro do diretório `../data/json`. Os principais arquivos gerados foram:
 
 - `model_years.json`: Lista de anos de modelo.
 - `make_model_year.json`: Lista de marcas vinculadas a cada ano de modelo.
@@ -88,7 +88,7 @@ Os dados foram divididos da seguinte forma:
 - **Treinamento e Validação**: Reclamações entre 2014 e 2024 foram usadas para treino e validação do modelo.
 - **Teste**: Um conjunto de dados adicional, contendo reclamações anteriores a 2014, foi separado para avaliar o desempenho do modelo em um período diferente, atendendo ao requisito opcional de detecção de data drift. Não foi feita nenhuma manipulação nesses dados, do tipo balanceamento, como foi feito na conjunto de dados de treinamento.
 
-Os dados foram salvos em arquivos *CSV* organizados no diretório `../../data/csv`:
+Os dados foram salvos em arquivos *CSV* organizados no diretório `../data/csv`:
 
 - `train.csv`: Conjunto de treinamento, composto por **8.357** amostras.
 - `eval.csv`: Conjunto de validação, composto por **2.090** amostras.
@@ -182,7 +182,7 @@ O modelo foi treinado com os seguintes hiperparâmetros:
 **Critério de parada antecipada (early stopping)**: Para evitar overfitting, foi utilizado um critério de parada antecipada, interrompendo o treinamento após **3 épocas consecutivas sem melhoria na métrica de validação** (`eval_loss`).  
 
 **Versionamento e Salvamento**:  
-- Durante o treinamento, os modelos foram salvos na pasta `../../models`, e as métricas registradas na pasta `../../metrics`.  
+- Durante o treinamento, os modelos foram salvos na pasta `../models`, e as métricas registradas na pasta `../metrics`.  
 
 ---  
 
@@ -346,11 +346,11 @@ Foram criados dois arquivos principais para a configuração do Docker:
 
 Para executar a API containerizada, siga os seguintes passos:
 
-1. Certifique-se de que o **Docker** e o **Docker Compose** estão instalados em sua máquina.
-2. Va até o diretório `/project/api`, que é onde os arquivos **docker-compose.yml** e **Dockerfile** estão localizados.
-3. Execute o comando abaixo para construir e iniciar o container:
+1. Certifique-se de que o **Docker** está instalado em sua máquina.
+2. Execute o comando abaixo para construir e iniciar o container:
 
    ```bash
-   docker-compose up -d --build
+   docker build -t classifier .
+   docker run -d --restart always -p 5009:5009 --name classifier classifier
 
 Para o uso adequado da API, deve-se executar primeiramente o endpoint load, que carrega o modelo em memória, passando o nome do modelo de classificação `vic35get/nhtsa_complaints_classifier`, assim como visto na seção 5.3.
