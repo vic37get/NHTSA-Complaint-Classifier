@@ -1,0 +1,13 @@
+model:
+  name: "bert-base-uncased"
+  learning_rate: 1e-5
+  batch_size: 4
+  epochs: 30
+  patience: 3
+
+paths:
+  train_dataset: "../../data/csv/train.csv"
+  test_dataset: "../../data/csv/test.csv"
+  eval_dataset: "../../data/csv/eval.csv"
+  dir_save_model: "../../models"
+  dir_save_metrics: "../../metrics"
